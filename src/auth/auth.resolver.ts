@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { AuthEntity } from './entities/auth.entity';
 import { RegisterUserDto } from './dto/register.dto';
@@ -12,6 +12,11 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 @Resolver(() => AuthEntity)
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
+
+  @Query(() => String, { name: 'sayHello' })
+  sayHello() {
+    return 'Auth resolver is working!';
+  }
 
   @Mutation(() => AuthEntity)
   registerAuth(@Args('registerInput') registerDto: RegisterUserDto) {

@@ -2,28 +2,67 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Auth {
-  """Example field (placeholder)"""
-  exampleField: Int!
+type AuthEntity {
+  id: Int!
+  username: String!
+  email: String!
+  isVerified: Boolean!
+  otpCode: String
+  otpExpires: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  auth(id: Int!): Auth!
+  sayHello: String!
 }
 
 type Mutation {
-  createAuth(createAuthInput: CreateAuthInput!): Auth!
-  updateAuth(updateAuthInput: UpdateAuthInput!): Auth!
-  removeAuth(id: Int!): Auth!
+  registerAuth(registerInput: RegisterUserDto!): AuthEntity!
+  loginAuth(loginInput: LoginDto!): AuthEntity!
+  verifyAuth(verifyInput: VerifyDto!): AuthEntity!
+  resendOtpAuth(resendOtpInput: ResendOtpDto!): AuthEntity!
+  forgotPasswordAuth(forgotPasswordInput: ForgotPasswordDto!): AuthEntity!
+  resetPasswordAuth(resetPasswordInput: ResetPasswordDto!): AuthEntity!
+  changePasswordAuth(changePasswordInput: ChangePasswordDto!): AuthEntity!
 }
 
-input CreateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
+input RegisterUserDto {
+  username: String!
+  email: String!
+  password: String!
 }
 
-input UpdateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+input LoginDto {
+  email: String!
+  password: String!
+}
+
+input VerifyDto {
+  email: String!
+  otpCode: String!
+}
+
+input ResendOtpDto {
+  email: String!
+}
+
+input ForgotPasswordDto {
+  email: String!
+}
+
+input ResetPasswordDto {
+  email: String!
+  otpCode: String!
+  newPassword: String!
+}
+
+input ChangePasswordDto {
+  oldPassword: String!
+  newPassword: String!
 }

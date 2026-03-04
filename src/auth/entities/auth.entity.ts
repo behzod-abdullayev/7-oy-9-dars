@@ -32,11 +32,11 @@ export class AuthEntity {
 
   @Column({ type: 'varchar', nullable: true })
   @Field({ nullable: true })
-  otpCode?: string | null;
+  otpCode?: string;
 
   @Column({ type: 'timestamptz', nullable: true })
   @Field(() => Date, { nullable: true })
-  otpExpires?: Date | null;
+  otpExpires?: Date;
 
   @CreateDateColumn({ type: 'timestamptz' })
   @Field(() => Date)

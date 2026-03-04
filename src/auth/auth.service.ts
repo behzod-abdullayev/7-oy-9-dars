@@ -50,8 +50,8 @@ export class AuthService {
     }
 
     user.isVerified = true;
-    user.otpCode = null;
-    user.otpExpires = null;
+    user.otpCode = "";
+    user.otpExpires = undefined;
     return await this.authRepository.save(user);
   }
 
@@ -102,15 +102,15 @@ export class AuthService {
     }
 
     user.password = await bcrypt.hash(dto.newPassword, 10);
-    user.otpCode = null;
-    user.otpExpires = null;
+    user.otpCode = "";
+    user.otpExpires = undefined;
     return await this.authRepository.save(user);
   }
 
   // 7. change password
   async changePassword(dto: ChangePasswordDto) {
     
-    const user = await this.authRepository.findOne({ where: { id: 1 } }); 
+    const user = await this.authRepository.findOne({ where: {id: 1} }); 
     if (!user) throw new NotFoundException("Foydalanuvchi topilmadi");
     
     const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
