@@ -1,4 +1,3 @@
-
 import {
   CanActivate,
   ExecutionContext,
@@ -6,33 +5,62 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { GqlExecutionContext } from '@nestjs/graphql'; 
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req;
+
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token topilmadi');
     }
+
     try {
-      // 💡 Here the JWT secret key that's used for verifying the payload 
-      // is the key that was passsed in the JwtModule
+
       const payload = await this.jwtService.verifyAsync(token);
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
+      
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Token yaroqsiz yoki muddati o'tgan");
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractTokenFromHeader(request: any): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+}
+
+
+
+
+@Injectable()
+export class GqlAuthGuard implements CanActivate {
+  constructor(private jwtService: JwtService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req;
+
+    const authHeader = request.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Token topilmadi');
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+      const payload = await this.jwtService.verifyAsync(token);
+      request['user'] = payload; // Bu yerda foydalanuvchini requestga qo'shamiz
+      return true;
+    } catch {
+      throw new UnauthorizedException('Token yaroqsiz');
+    }
   }
 }

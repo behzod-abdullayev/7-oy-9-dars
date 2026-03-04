@@ -8,6 +8,9 @@ import { ResendOtpDto } from './dto/resend-otp.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/common/guard/auth.guard';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @Resolver(() => AuthEntity)
 export class AuthResolver {
@@ -49,7 +52,11 @@ export class AuthResolver {
   }
 
   @Mutation(() => AuthEntity)
-  changePasswordAuth(@Args('changePasswordInput') changePasswordDto: ChangePasswordDto) {
-    return this.authService.changePassword(changePasswordDto);
-  }
+@UseGuards(GqlAuthGuard) 
+async changePasswordAuth(
+  @Args('changePasswordInput') changePasswordDto: ChangePasswordDto,
+  @CurrentUser() user: AuthEntity 
+) {
+  return this.authService.changePassword(user.id, changePasswordDto);
+}
 }

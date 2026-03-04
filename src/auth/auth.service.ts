@@ -143,14 +143,30 @@ async login(dto: LoginDto): Promise<AuthResponse> {
     return await this.authRepository.save(user);
   }
 
-  // 5. forgot password
+// 5. forgot password
   async forgotPassword(dto: ForgotPasswordDto) {
+    const {email} = dto
     const user = await this.authRepository.findOne({ where: { email: dto.email } });
     if (!user) throw new NotFoundException("Email topilmadi");
 
-    user.otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otpCode = code;
     user.otpExpires = Date.now() + 5 * 60 * 1000;
-    return await this.authRepository.save(user);
+    
+    await this.authRepository.save(user);
+
+    try {
+      await this.transporter.sendMail({
+      from: "behzod2366@gmail.com",
+      to: email,
+      subject: "Yangi tasdiqlash kodi",
+      html: `<h1>${code}</h1>`,
+    });
+    } catch (error) {
+      throw new InternalServerErrorException("Email yuborishda xatolik yuz berdi");
+    }
+
+    return user;
   }
 
   // 5. RESET PASSWORD 
@@ -171,9 +187,10 @@ async login(dto: LoginDto): Promise<AuthResponse> {
     return await this.authRepository.save(user);
   }
 
-  // 7. change password
-  async changePassword(dto: ChangePasswordDto) {
-    const user = await this.authRepository.findOne({ where: { id: 1 } });
+ // 7. change password
+  async changePassword(id: number, dto: ChangePasswordDto) {
+    const user = await this.authRepository.findOne({ where: { id } }); 
+    
     if (!user) throw new NotFoundException("Foydalanuvchi topilmadi");
 
     const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
