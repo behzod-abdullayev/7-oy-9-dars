@@ -34,9 +34,14 @@ export class AuthEntity {
   @Field({ nullable: true })
   otpCode?: string;
 
-  @Column({ type: 'timestamptz', nullable: true })
-  @Field(() => Date, { nullable: true })
-  otpExpires?: Date;
+
+@Column({ type: 'varchar', default: 'USER' }) 
+  @Field(() => String)
+  role: string;
+
+@Column({ type: 'bigint', nullable: true })
+  @Field(() => Number, { nullable: true })
+  otpExpires?: number | null;
 
   @CreateDateColumn({ type: 'timestamptz' })
   @Field(() => Date)
@@ -45,4 +50,14 @@ export class AuthEntity {
   @UpdateDateColumn({ type: 'timestamptz' })
   @Field(() => Date)
   updatedAt: Date;
+}
+
+
+@ObjectType()
+export class AuthResponse {
+  @Field()
+  access_token: string;
+
+  @Field(() => AuthEntity)
+  user: AuthEntity;
 }
